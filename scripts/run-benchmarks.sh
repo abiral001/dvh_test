@@ -3,7 +3,7 @@
 TEST_LEVEL=${1:-"L1"}
 SINGLE_WORKLOAD=$2
 
-L0_IP="10.10.1.2"
+L0_IP="192.168.122.62"
 L1_IP="10.10.1.100"
 L2_IP="10.10.1.101"
 L3_IP="10.10.1.102"
@@ -56,7 +56,7 @@ function print_target_tests()
 
 function setup_ip_kvmpath()
 {
-	KVMPERF_PATH="/root/dvh-asplos-ae/scripts"
+	KVMPERF_PATH="/home/l0/Desktop/dvh-asplos-ae/scripts"
 
 	echo "TEST LEVEL: $TEST_LEVEL"
 	if [ $TEST_LEVEL == "L2" ] ; then
@@ -204,7 +204,7 @@ print_target_tests
 
 setup_ip_kvmpath
 
-# source ./check.sh $TEST_LEVEL
+source ./check.sh $TEST_LEVEL
 
 #TODO: ask before delete
 sudo rm -f *.txt
@@ -223,7 +223,7 @@ if [[ -n $TEST_DESC ]]; then
 	mkdir $TEST_DESC
 	echo -n "How many times to repeat? "
 	read repeat
-	install_tests
+	# install_tests
 
 	for i in `seq 1 $repeat`; do
 		run_tests
@@ -232,6 +232,6 @@ if [[ -n $TEST_DESC ]]; then
 	done
 	echo "$TEST_DESC is done"
 else
-	install_tests
+	# install_tests
 	run_tests
 fi

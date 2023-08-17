@@ -20,17 +20,21 @@ TABLE_SIZE=1000000
 RESULTS=mysql.txt
 
 function prepare() {
-	mysql -u root --password=kvm < create_db.sql
-	sysbench --test=oltp --oltp-table-size=$TABLE_SIZE --mysql-password=kvm prepare
+	mysql -u root < create_db.sql
+	# sysbench --test=oltp --oltp-table-size=$TABLE_SIZE prepare
+	sysbench oltp_read_write --table-size=$TABLE_SIZE --db-driver=mysql --mysql-user=root --mysql-host=$TARGET_IP prepare
 }
 
 function cleanup() {
-	sysbench --test=oltp --mysql-password=kvm cleanup
-	mysql -u root --password=kvm < drop_db.sql
+	# sysbench --test=oltp cleanup
+	sysbench oltp_read_write --db-driver=mysql --mysql-user=root --mysql-host=$TARGET_IP cleanup
+	mysql -u root < drop_db.sql
 }
 
 function run() {
-	sysbench --test=oltp $REQ --oltp-table-size=$TABLE_SIZE --num-threads=$num_threads --mysql-host=$TARGET_IP --mysql-password=kvm run | tee \
+	# sysbench --test=oltp $REQ --oltp-table-size=$TABLE_SIZE --num-threads=$num_threads --mysql-host=$TARGET_IP run | tee \
+	# >(grep 'total time:' | awk '{ print $3 }' | sed 's/s//' >> $RESULTS)
+	sysbench oltp_read_write $REQ --table-size=$TABLE_SIZE --num-threads=$num_threads --mysql-user=root --mysql-host=$TARGET_IP run | tee \
 	>(grep 'total time:' | awk '{ print $3 }' | sed 's/s//' >> $RESULTS)
 }
 
@@ -47,7 +51,7 @@ elif [[ "$ACTION" == "run" ]]; then
 	source exits.sh mysql
 	start_measurement
 
-	for num_threads in 200; do
+	for num_threads in 100; do
 		echo -e "$num_threads threads:\n---" >> $RESULTS
 		for i in `seq 1 $REPTS`; do
 			ssh $TEST_USER@$TARGET_IP "pushd ${CMD_PATH};sudo ./mysql.sh prep"
@@ -61,7 +65,7 @@ elif [[ "$ACTION" == "run" ]]; then
 	save_stat
 
 elif [[ "$ACTION" == "cleanup" ]]; then
-	# We will do a lazy-cleanup.
+	#We will do a lazy-cleanup.
 	service mysql stop
 else
 	usage
