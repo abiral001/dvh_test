@@ -56,7 +56,7 @@ function print_target_tests()
 
 function setup_ip_kvmpath()
 {
-	KVMPERF_PATH="/home/l0/Desktop/dvh-asplos-ae/scripts"
+	KVMPERF_PATH="/root/dvh-asplos-ae/scripts"
 
 	echo "TEST LEVEL: $TEST_LEVEL"
 	if [ $TEST_LEVEL == "L2" ] ; then
