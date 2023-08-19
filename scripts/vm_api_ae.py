@@ -34,7 +34,7 @@ class Params:
 mi_src = " -s"
 mi_dest = " -t"
 LOCAL_SOCKET = 8890
-l1_addr='10.10.1.100'
+l1_addr='192.168.30.116'
 PIN = ' -w'
 pin_waiting='waiting for connection.*server'
 hostname = os.popen('hostname | cut -d . -f1').read().strip()
@@ -46,7 +46,7 @@ g_child=None
 
 ###############################
 #### set default here #########
-mi_default = "l2"
+mi_default = "l1"
 io_default = "vp"
 ###############################
 def wait_for_prompt(child, hostname):
@@ -446,7 +446,7 @@ def set_params(reuse_force):
 def set_l1_addr():
 	global l1_addr
 	if hostname == "kvm-dest":
-		l1_addr = "10.10.1.110"
+		l1_addr = "192.168.30.116"
 	
 def create_child():
 	global g_child
