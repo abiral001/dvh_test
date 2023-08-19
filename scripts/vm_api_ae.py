@@ -242,8 +242,9 @@ def halt(level):
 
 #depricated for now
 def reboot(params):
-	halt(params.level)
-	boot_nvm(params)
+    return
+    halt(params.level)
+    boot_nvm(params)
 
 def terminate_vms(qemu_monitor, child = None, bootLevel=None):
     global g_child
@@ -288,14 +289,14 @@ def get_boolean_input(statement):
 
     while True:
         try:
-            return {'y':True, 'n':False, '':False}[raw_input(statement).lower()]
+            return {'y':True, 'n':False, '':False}[input(statement).lower()]
         except KeyError:
             print("Invalid input please enter y, Y, n, or N")
 
 def get_str_input(statement, str_set):
 
     while True:
-        input_str = raw_input(statement).lower()
+        input_str = input(statement).lower()
         if input_str in str_set:
             return input_str
         print("Invalid input. Please enter one of " + str(str_set) + '.')
@@ -304,7 +305,7 @@ def get_yn_input(statement):
 
     while True:
         try:
-            return {'y':'y', 'n':'n'}[raw_input(statement).lower()]
+            return {'y':'y', 'n':'n'}[input(statement).lower()]
         except KeyError:
             print("Invalid input please enter y, Y, n, or N")
 
@@ -312,7 +313,7 @@ def get_int_input(statement):
 
     while True:
         try:
-            return int(raw_input(statement))
+            return int(input(statement))
         except ValueError:
             print("Invalid input. Please enter integer")
 
@@ -348,7 +349,7 @@ def print_params():
 def update_params():
     global params
 
-    num = int(raw_input("Enter number to update configuration. Enter 0 to start a VM: ") or "0")
+    num = int(input("Enter number to update configuration. Enter 0 to start a VM: ") or "0")
 
     if num == 0:
         if not params.vm_image:
@@ -357,7 +358,7 @@ def update_params():
         return False
 
     if num == VM_IMAGE:
-        params.vm_image = raw_input('Path to the VM image: ')
+        params.vm_image = input('Path to the VM image: ')
 
     if num == VM_CONFIG:
         params.vm_config = get_str_input('base, passthrough, dvh-vp, or dvh: ',
