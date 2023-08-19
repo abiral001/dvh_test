@@ -12,24 +12,24 @@ import pickle
 
 QEMU_options = {'virtual_timer': 'vtimer', 'virtual_ipi': 'vipi', 'virtual_idle': 'vidle', 'fs_base': 'seg'}
 class Params:
-	def __init__(self):
-		self.level = 2
-                self.vm_image = None
-		self.iovirt = 'pv'
-                self.vm_config = 'base' # base, passthrough, DVH-VP, DVH
-		self.posted = False
-		self.mi = False
-		self.mi_level = 0
-		self.mi_role = None
-		self.mi_fast = False
-                self.micro = False
-                self.dvh =  {
-                            'virtual_ipi': 'n',
-                            'virtual_timer': 'n',
-                            'virtual_idle': 'n',
-                            'fs_base': 'n',
-                            }
-		self.dvh_use = False
+    def __init__(self):
+        self.level = 2
+        self.vm_image = None
+        self.iovirt = 'pv'
+        self.vm_config = 'base' # base, passthrough, DVH-VP, DVH
+        self.posted = False
+        self.mi = False
+        self.mi_level = 0
+        self.mi_role = None
+        self.mi_fast = False
+        self.micro = False
+        self.dvh =  {
+                    'virtual_ipi': 'n',
+                    'virtual_timer': 'n',
+                    'virtual_idle': 'n',
+                    'fs_base': 'n',
+                    }
+        self.dvh_use = False
 	
 mi_src = " -s"
 mi_dest = " -t"
@@ -59,14 +59,13 @@ def wait_for_vm_prompt(child):
     child.expect('L.*].*#')
 
 def pin_vcpus(level):
-
-        if level == 1:
-	    os.system('cd /usr/local/bin/ && sudo ./pin_vcpus.sh && cd -')
-	if level == 2:
-		os.system('ssh root@%s "cd vm/qemu/scripts/qmp/ && ./pin_vcpus.sh"' % l1_addr)
-	if level == 3:
-		os.system('ssh root@10.10.1.101 "cd vm/qemu/scripts/qmp/ && ./pin_vcpus.sh"')
-	print ("vcpu is pinned")
+    if level == 1:
+        os.system('cd /usr/local/bin/ && sudo ./pin_vcpus.sh && cd -')
+    if level == 2:
+        os.system('ssh root@%s "cd vm/qemu/scripts/qmp/ && ./pin_vcpus.sh"' % l1_addr)
+    if level == 3:
+        os.system('ssh root@10.10.1.101 "cd vm/qemu/scripts/qmp/ && ./pin_vcpus.sh"')
+    print ("vcpu is pinned")
 
 cmd_pv = './run-guest.sh'
 cmd_vfio = './run-guest-vfio.sh'
@@ -74,14 +73,13 @@ cmd_viommu = './run-guest-viommu.sh'
 cmd_vfio_viommu = './run-guest-vfio-viommu.sh'
 
 def handle_mi_options(vm_level, lx_cmd):
-        if vm_level == params.mi_level:
-		# BTW, this is the only place to use mi_role
-		if params.mi_role == "src":
-			lx_cmd += mi_src
-                if params.mi_role == "dest":
-			lx_cmd += mi_dest
-
-	return lx_cmd
+    if vm_level == params.mi_level:
+    # BTW, this is the only place to use mi_role
+        if params.mi_role == "src":
+            lx_cmd += mi_src
+            if params.mi_role == "dest":
+                lx_cmd += mi_dest
+    return lx_cmd
 
 def handle_pi_options(vm_level, lx_cmd):
 	# We could support pt as well.
@@ -99,8 +97,8 @@ def add_dvh_options(vm_level, lx_cmd):
 
     for f in params.dvh:
 	# We never set virtual idle for L1
-	if vm_level == 1 and f == 'virtual_idle':
-		continue;
+        if vm_level == 1 and f == 'virtual_idle':
+            continue;
         if params.dvh[f] == 'y':
             if dvh_options:
                 dvh_options += ","
@@ -115,13 +113,11 @@ def add_dvh_options(vm_level, lx_cmd):
     return lx_cmd
 
 def add_special_options(vm_level, lx_cmd):
-	lx_cmd = handle_pi_options(vm_level, lx_cmd)
-        if params.mi:
-	    lx_cmd = handle_mi_options(vm_level, lx_cmd)
-
-        lx_cmd += PIN
-
-	return lx_cmd
+    lx_cmd = handle_pi_options(vm_level, lx_cmd)
+    if params.mi:
+        lx_cmd = handle_mi_options(vm_level, lx_cmd)
+    lx_cmd += PIN
+    return lx_cmd
 
 def get_base_cmd(vm_level):
 	if vm_level == 1:
@@ -250,33 +246,32 @@ def reboot(params):
 	boot_nvm(params)
 
 def terminate_vms(qemu_monitor, child = None, bootLevel=None):
-	global g_child
-	print ("Terminate VM.")
-
-	if not child:
-		child = g_child
+    global g_child
+    print ("Terminate VM.")
+    if not child:
+        child = g_child
         if not bootLevel:
                 bootLevel = params.level
 
-	if qemu_monitor:
-		if params.level == 2 and params.mi_level == 2:
-			child.sendline('stop')
-			child.expect('\(qemu\)')
-			child.sendline('q')
-			child.expect('L1.*$')
-			child.sendline('h')
-			wait_for_prompt(child, hostname)
+    if qemu_monitor:
+        if params.level == 2 and params.mi_level == 2:
+            child.sendline('stop')
+            child.expect('\(qemu\)')
+            child.sendline('q')
+            child.expect('L1.*$')
+            child.sendline('h')
+            wait_for_prompt(child, hostname)
 
-		if params.mi_level == 1:
-			child.sendline('stop')
-			child.expect('\(qemu\)')
-			child.sendline('q')
-			wait_for_prompt(child, hostname)
+        if params.mi_level == 1:
+            child.sendline('stop')
+            child.expect('\(qemu\)')
+            child.sendline('q')
+            wait_for_prompt(child, hostname)
 
-	else:
-            for i in reversed(range(bootLevel)):
-                child.sendline('halt -p')
-                wait_for_prompt(child, hostnames[i])
+    else:
+        for i in reversed(range(bootLevel)):
+            child.sendline('halt -p')
+            wait_for_prompt(child, hostnames[i])
 	
 def str_to_bool(s):
 	if s == 'True':
@@ -295,7 +290,7 @@ def get_boolean_input(statement):
         try:
             return {'y':True, 'n':False, '':False}[raw_input(statement).lower()]
         except KeyError:
-            print "Invalid input please enter y, Y, n, or N"
+            print("Invalid input please enter y, Y, n, or N")
 
 def get_str_input(statement, str_set):
 
@@ -303,7 +298,7 @@ def get_str_input(statement, str_set):
         input_str = raw_input(statement).lower()
         if input_str in str_set:
             return input_str
-        print "Invalid input. Please enter one of " + str(str_set) + '.'
+        print("Invalid input. Please enter one of " + str(str_set) + '.')
 
 def get_yn_input(statement):
 
@@ -311,7 +306,7 @@ def get_yn_input(statement):
         try:
             return {'y':'y', 'n':'n'}[raw_input(statement).lower()]
         except KeyError:
-            print "Invalid input please enter y, Y, n, or N"
+            print("Invalid input please enter y, Y, n, or N")
 
 def get_int_input(statement):
 
@@ -319,7 +314,7 @@ def get_int_input(statement):
         try:
             return int(raw_input(statement))
         except ValueError:
-            print "Invalid input. Please enter integer"
+            print("Invalid input. Please enter integer")
 
 def save_params(new_params):
     with open(EXP_PARAMS_PKL, 'wb+') as output:
@@ -417,7 +412,7 @@ def consume_memory():
     elif params.level == 3:
         size = 48
 
-    print 'Wait for a minute. It takes some time to finish setup'
+    print('Wait for a minute. It takes some time to finish setup')
     os.system('./consume_mem.sh %d' % size)
 
 def set_params(reuse_force):
